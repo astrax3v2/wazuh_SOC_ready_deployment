@@ -1,0 +1,42 @@
+# Linux auditd rules for SOC monitoring.
+# Save as: /etc/audit/rules.d/soc.rules
+# Apply with:
+#   sudo augenrules --load
+#   sudo auditctl -l
+
+# Identity and privilege files
+-w /etc/passwd -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/group -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+-w /etc/sudoers -p wa -k privilege
+-w /etc/sudoers.d/ -p wa -k privilege
+
+# SSH configuration and keys
+-w /etc/ssh/sshd_config -p wa -k ssh_config
+-w /root/.ssh/ -p wa -k root_ssh
+-w /home/ -p wa -k user_home
+
+# Cron persistence
+-w /etc/crontab -p wa -k cron
+-w /etc/cron.d/ -p wa -k cron
+-w /etc/cron.daily/ -p wa -k cron
+-w /etc/cron.hourly/ -p wa -k cron
+-w /etc/cron.weekly/ -p wa -k cron
+
+# Systemd persistence
+-w /etc/systemd/system/ -p wa -k systemd
+-w /lib/systemd/system/ -p wa -k systemd
+-w /usr/lib/systemd/system/ -p wa -k systemd
+
+# Log tampering
+-w /var/log/ -p wa -k log_tampering
+-w /var/log/audit/ -p wa -k audit_log_tampering
+
+# Privileged command execution
+-a always,exit -F arch=b64 -S execve -F euid=0 -k root_command
+-a always,exit -F arch=b32 -S execve -F euid=0 -k root_command
+
+# Kernel module load/unload
+-a always,exit -F arch=b64 -S init_module,finit_module,delete_module -k kernel_module
+-a always,exit -F arch=b32 -S init_module,delete_module -k kernel_module
