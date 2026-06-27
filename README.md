@@ -1,0 +1,1 @@
+# wazuh_SOC_ready_deployment
